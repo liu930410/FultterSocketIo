@@ -1,5 +1,6 @@
 import 'dart:io';
-
+import 'dart:ui';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        fontFamily: 'NotoSerif',
       ),
       home: MyHomePage(title: 'Socket in Flutter App'),
     );
@@ -93,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // 建立websocket链接
     // 链接的书写规范，schame://host:port/namespace, 这里socket_io_client在处理链接时候会把path和后面的query参数都作为namespace来处理，所以如果我们的namespace是/的话，就直接使用http://host/
     socket = IO.io(
-        'http://192.168.0.59:3000/',
+        'http://192.168.2.157:3000/',
         IO.OptionBuilder()
             .setTransports(['websocket'])
             .disableAutoConnect()
@@ -161,7 +163,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       RaisedButton(
                         onPressed: socket.connect,
-                        child: Text('连接Socket'),
+                        child: Text('连接Socket',
+                            style: TextStyle(fontWeight: FontWeight.w900)),
                       ),
                       SizedBox(width: 50),
                       RaisedButton(
