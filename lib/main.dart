@@ -26,9 +26,9 @@ void main() {
 }
 
 class Topics with ChangeNotifier {
-  String _postion = 'a';
-  String _velocity = 'b';
-  String _battery = 'c';
+  String _postion = '';
+  String _velocity = '';
+  String _battery = '';
 
   String get postion => _postion;
   String get velocity => _velocity;
@@ -147,91 +147,99 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 50),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                children: [
-                  Row(
-                    children: [
-                      RaisedButton(
-                        onPressed: socket.connect,
-                        child: Text('连接Socket',
-                            style: TextStyle(fontWeight: FontWeight.w900)),
-                      ),
-                      SizedBox(width: 50),
-                      RaisedButton(
-                        onPressed: socket.disconnect,
-                        child: Text('断开Socket'),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 50),
-                  Column(
-                    children: [
-                      RichText(
-                        text: TextSpan(
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(top: 50),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        RaisedButton(
+                          onPressed: socket.connect,
+                          child: Text('连接Socket',
+                              style: TextStyle(fontWeight: FontWeight.w900)),
+                        ),
+                        SizedBox(width: 50),
+                        RaisedButton(
+                          onPressed: socket.disconnect,
+                          child: Text('断开Socket'),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 50),
+                    Column(
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                              style: TextStyle(color: Color(0xFF535353)),
+                              children: [
+                                TextSpan(
+                                    text:
+                                        'Postion: ${context.watch<Topics>().postion}'),
+                              ]),
+                        ),
+                        SizedBox(height: 50),
+                        // Text('Velocity: ${Topics().velocity}'),
+                        RichText(
+                          text: TextSpan(
                             style: TextStyle(color: Color(0xFF535353)),
                             children: [
+                              TextSpan(text: 'Velocity: '),
                               TextSpan(
-                                  text:
-                                      'Postion: ${context.watch<Topics>().postion}'),
-                            ]),
-                      ),
-                      SizedBox(height: 50),
-                      // Text('Velocity: ${Topics().velocity}'),
-                      RichText(
-                        text: TextSpan(
-                          style: TextStyle(color: Color(0xFF535353)),
-                          children: [
-                            TextSpan(text: 'Velocity: '),
-                            TextSpan(
-                                text: '${context.watch<Topics>().velocity}')
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 50),
-                      RichText(
-                        text: TextSpan(
-                          style: TextStyle(color: Color(0xFF535353)),
-                          children: [
-                            TextSpan(text: 'Battery: '),
-                            TextSpan(text: '${context.watch<Topics>().battery}')
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 50),
-                      Column(
-                        children: [
-                          SizedBox(
-                            height: 100,
-                            width: 200,
-                            child: Column(
-                              children: <Widget>[
-                                TextField(
-                                  autofocus: true,
-                                  controller: _textController,
-                                  decoration: InputDecoration(
-                                    hintText: "请输入Goal的值1-5",
-                                  ),
-                                ),
-                              ],
-                            ),
+                                  text: '${context.watch<Topics>().velocity}')
+                            ],
                           ),
-                          RaisedButton(
-                            onPressed: () =>
-                                {socket.emit('goal', _textController.text)},
-                            child: Text('提交'),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                        ),
+                        SizedBox(height: 50),
+                        RichText(
+                          text: TextSpan(
+                            style: TextStyle(color: Color(0xFF535353)),
+                            children: [
+                              TextSpan(text: 'Battery: '),
+                              TextSpan(
+                                  text: '${context.watch<Topics>().battery}')
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 50),
+                        Column(
+                          children: [
+                            SizedBox(
+                              height: 100,
+                              width: 200,
+                              child: Column(
+                                children: <Widget>[
+                                  TextField(
+                                    autofocus: false,
+                                    controller: _textController,
+                                    decoration: InputDecoration(
+                                      hintText: "请输入Goal的值1-5",
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            RaisedButton(
+                              onPressed: () => {
+                                socket.emit('goal', _textController.text),
+                              },
+                              child: Text('提交'),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
