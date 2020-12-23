@@ -221,9 +221,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                           RaisedButton(
-                            onPressed: () => {
-                              socket.emit('chat message', _textController.text)
-                            },
+                            onPressed: () =>
+                                {socket.emit('goal', _textController.text)},
                             child: Text('提交'),
                           )
                         ],
