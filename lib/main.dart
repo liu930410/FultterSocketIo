@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:ui';
-// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -90,12 +89,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _listenWebSocket() {
-    // 构建请求头，可以放一些cookie等信息，这里加上了origin，因为服务端有origin校验
-
-    // 建立websocket链接
-    // 链接的书写规范，schame://host:port/namespace, 这里socket_io_client在处理链接时候会把path和后面的query参数都作为namespace来处理，所以如果我们的namespace是/的话，就直接使用http://host/
     socket = IO.io(
-        'http://192.168.2.157:3000/',
+        'http://localhost:3000/',
         IO.OptionBuilder()
             .setTransports(['websocket'])
             .disableAutoConnect()
