@@ -25,28 +25,34 @@ void main() {
   );
 }
 
+class Position {
+  String x;
+  String y;
+}
+
 class Topics with ChangeNotifier {
-  String _postion = '';
-  String _velocity = '';
+  Map<String, dynamic> _postion = {'x': '', 'y': ''};
+  Map<String, dynamic> _velocity = {'linear': '', 'angulur': ''};
   String _battery = '';
 
-  String get postion => _postion;
-  String get velocity => _velocity;
+  Map<String, dynamic> get postion => _postion;
+  Map<String, dynamic> get velocity => _velocity;
   String get battery => _battery;
 
   void changePostion(data) {
-    this._postion = data;
     _postion = data;
     notifyListeners();
   }
 
   void changeVelocity(data) {
+    print(data);
     _velocity = data;
+
     notifyListeners();
   }
 
   void changeBattery(data) {
-    _battery = data;
+    _battery = data['battery'].toString();
     notifyListeners();
   }
 }
@@ -90,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _listenWebSocket() {
     socket = IO.io(
-        'http://localhost:3000/',
+        'http://192.168.2.185:3000/',
         IO.OptionBuilder()
             .setTransports(['websocket'])
             .disableAutoConnect()
@@ -134,13 +140,12 @@ class _MyHomePageState extends State<MyHomePage> {
       context.read<Topics>().changePostion(data);
     });
     socket.on('battery', (data) {
-      context.read<Topics>().changeVelocity(data);
-    });
-    socket.on('velocity', (data) {
       context.read<Topics>().changeBattery(data);
     });
-
-    TextEditingController _textController = TextEditingController();
+    socket.on('velocity', (data) {
+      print(data);
+      context.read<Topics>().changeVelocity(data);
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -176,64 +181,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     SizedBox(height: 50),
                     Column(
                       children: [
-                        RichText(
-                          text: TextSpan(
-                              style: TextStyle(color: Color(0xFF535353)),
-                              children: [
-                                TextSpan(
-                                    text:
-                                        'Postion: ${context.watch<Topics>().postion}'),
-                              ]),
-                        ),
+                        PositionSection(),
                         SizedBox(height: 50),
-                        // Text('Velocity: ${Topics().velocity}'),
-                        RichText(
-                          text: TextSpan(
-                            style: TextStyle(color: Color(0xFF535353)),
-                            children: [
-                              TextSpan(text: 'Velocity: '),
-                              TextSpan(
-                                  text: '${context.watch<Topics>().velocity}')
-                            ],
-                          ),
-                        ),
+                        VelocitySection(),
                         SizedBox(height: 50),
-                        RichText(
-                          text: TextSpan(
-                            style: TextStyle(color: Color(0xFF535353)),
-                            children: [
-                              TextSpan(text: 'Battery: '),
-                              TextSpan(
-                                  text: '${context.watch<Topics>().battery}')
-                            ],
-                          ),
-                        ),
+                        BatterySection(),
                         SizedBox(height: 50),
-                        Column(
-                          children: [
-                            SizedBox(
-                              height: 100,
-                              width: 200,
-                              child: Column(
-                                children: <Widget>[
-                                  TextField(
-                                    autofocus: false,
-                                    controller: _textController,
-                                    decoration: InputDecoration(
-                                      hintText: "请输入Goal的值1-5",
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            RaisedButton(
-                              onPressed: () => {
-                                socket.emit('goal', _textController.text),
-                              },
-                              child: Text('提交'),
-                            )
-                          ],
-                        ),
+                        // InputForTest(socket: socket),
+                        TargetButton(socket: socket)
                       ],
                     ),
                   ],
@@ -243,6 +198,130 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class TargetButton extends StatelessWidget {
+  const TargetButton({
+    Key key,
+    @required this.socket,
+  }) : super(key: key);
+
+  final IO.Socket socket;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (String num in ['1', '2', '3', '4', '5'])
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: SizedBox(
+              width: 50,
+              child: RaisedButton(
+                child: Text(num),
+                onPressed: () {
+                  socket.emit('goal', num);
+                },
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class InputForTest extends StatelessWidget {
+  InputForTest({
+    Key key,
+    @required this.socket,
+  }) : super(key: key);
+
+  final TextEditingController _textController = TextEditingController();
+  final IO.Socket socket;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 100,
+          width: 200,
+          child: Column(
+            children: <Widget>[
+              TextField(
+                autofocus: false,
+                controller: _textController,
+                decoration: InputDecoration(
+                  hintText: "请输入Goal的值1-5",
+                ),
+              ),
+            ],
+          ),
+        ),
+        RaisedButton(
+          onPressed: () => {
+            socket.emit('goal', _textController.text),
+          },
+          child: Text('提交'),
+        )
+      ],
+    );
+  }
+}
+
+class BatterySection extends StatelessWidget {
+  const BatterySection({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(color: Color(0xFF535353)),
+        children: [
+          TextSpan(text: 'Battery: '),
+          TextSpan(text: '${context.watch<Topics>().battery}')
+        ],
+      ),
+    );
+  }
+}
+
+class VelocitySection extends StatelessWidget {
+  const VelocitySection({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    String _linear = context.watch<Topics>().velocity['linear'].toString();
+    String _angulur = context.watch<Topics>().velocity['angulur'].toString();
+
+    return RichText(
+      text: TextSpan(style: TextStyle(color: Color(0xFF535353)), children: [
+        TextSpan(text: 'Velocity Linear:$_linear Angular:$_angulur'),
+      ]),
+    );
+  }
+}
+
+class PositionSection extends StatelessWidget {
+  const PositionSection({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    String _x = context.watch<Topics>().postion['x'].toString();
+    String _y = context.watch<Topics>().postion['y'].toString();
+
+    return RichText(
+      text: TextSpan(style: TextStyle(color: Color(0xFF535353)), children: [
+        TextSpan(text: 'Postion X:$_x Y:$_y'),
+      ]),
     );
   }
 }
